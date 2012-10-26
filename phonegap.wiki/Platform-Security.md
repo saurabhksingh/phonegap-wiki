@@ -14,35 +14,15 @@ However, there are two caveats here to keep in mind. First, data is not secure i
 
 ### iOS
 
-####Short note on data security
-Every iOS device has a built in AES 256 crypto engine which ensures highly efficient data encryption on device. Each device has a unique UID burned on the application processor during manufacturing. This helps in data encryption to be unique for different devices. No external software or firmware can crack this UID. However booting up the iOS decrypts the data automatically and this facility enables people to crack this encryption. So essentially having the access to device's UI allows people to read the encrypted data. Setting the device [passcode](http://support.apple.com/kb/HT4113) prevents access to the device UI and tangles with the UID. It also provides the facility of remote wipe-off of data. However till iOS 3.0 and before iPhone 3GS remote data deletion was a lengthier process as actual disk data used to be performed. Now from iOS 4 onwards a new feature called Data Protection has been introduced. This is feature is available on on generations of iPhone 3GS or later and iPad. Its active only when a device passcode is set. It encrypts the hardware keys used to encrypt the data on disk. So in order to decrypt data passcode must be provided first. This also facilitates the quick remote data removal by invalidating only the encryption key. So as such data remains on disk but it can not be decrypted. Mails, attachments, location data and application launch images are protected using Data Protection on Apple Devices (refer [this](http://images.apple.com/ipad/business/docs/iOS_Security_Oct12.pdf) for more info. 
+Hardware encryption is available on the iOS devices listed above. When the device is locked using a PIN on iOS, by default only emails on the device are encrypted (reference needed). However, the key that is used to do the encryption is stored on the device, which has enabled people to crack this encryption.
 
-####Data protection in PhoneGap applications
-In PhoneGap encryption is not currently supported by default (till 2.1). This means that PhoneGap does not use these APIs while writing data on disk.
-Applications can make use of this APIs to make sure that data saved on disk get protected by iOS Data Protection. To encrypt files that are written to the file system the NSData writeToFile:options:error method should be used with the NSDataWritingFileProtectionComplete option.For existing files, you can use the setAttributes:ofItemAtPath:error: method of NSFileManager to set or change the value of the NSFileProtectionKey as NSDataWritingFileProtectionComplete (refer [this](http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Classes/NSData_Class/Reference/Reference.html#//apple_ref/c/econst/NSDataWritingOptions) for more options). 
+In PhoneGap encryption is not currently supported by default. To encrypt files that are written to the file system the NSData writeToFile:options:error method should be used with the NSDataWritingFileProtectionComplete option -- this is not done as of PhoneGap 1.0. One could also use the built in crypto APIs to do custom software encryption.
 
 The iOS keychain is another place that data can be stored securely. As with the general hardware encryption, this too has been cracked even more easily than the file system encryption.
 
 In PhoneGap there is a plugin that allows access to the iOS keychain.
 
-However as mentioned earlier the data written on disk by PhoneGap is still not protected. Also it may happen that you may not want to make changes in your code to make use of the APIs suggested above to protect data.
-There is another lot simpler way to achieve the data protection for your application. Using [Entitlements](http://developer.apple.com/library/mac/#documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/AboutEntitlements.html) Data Protection for the application data can be enabled without making any code change at all.
-Following are the steps to achieve this :
-
-1. On [provisioning portal](https://developer.apple.com/ios/manage/bundles/index.action) click on App Id tab.
-2. Click on configure of App Id corresponding to bundle identifier for you iOS application.
-3. On bottom of page check 'Enable for Data Protection' and select 'complete data protection' option. Click Done button
-4. Now navigate to Provisioning->Distribution tab. 
-5. Create a provisioning profile using the App Id configured in earlier steps.
-6. Download this provisioning profile and add it to you XCode and device.
-7. Open your project in XCode.
-8. Select the project file in project navigator and select the target that will be used for distribution.
-9. In the Summary tab of the target editor scroll down to bottom of page and click 'Entitlements'. Doing this will automatically creates a {App Name}.entitlements plist file.
-10. Click on the .entitlements created in previous step.
-11. Under 'XCode entitlements' add a key value pair. Chose 'Data Protection Class' as key and 'NSFileProtectionComplete' as value. Please note that this value has to be same as the one chosen in App Id configuration.
-12. That's all !
-
-So once these steps are performed all archived binaries will adhere to the Data Protection policy for all the data it writes on disk.  
+On devices that are encrypted, other security options like remote wipe are also then enabled.
 
 #### iOS App Decompilers
 
